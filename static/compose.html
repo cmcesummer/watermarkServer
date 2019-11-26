@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Document</title>
+    </head>
+    <body>
+        底图： <input type="file" id="file1" /> <br />
+        水印图： <input type="file" id="file2" /> <br />
+        水印间距： <input type="number" id="number" /> <br />
+        <button id="btn1">合成</button>
+        <button id="btn2">导出</button>
+        <img src="" alt="" />
+        <script>
+            function fileToBase64(file, cb) {
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function(e) {
+                    cb(this.result);
+                };
+            }
+            function base64ToBlob(code) {
+                var parts = code.split(";base64,");
+                var contentType = parts[0].split(":")[1];
+                var raw = window.atob(parts[1]);
+                var rawLength = raw.length;
+
+                var uInt8Array = new Uint8Array(rawLength);
+
+                for (var i = 0; i < rawLength; ++i) {
+                    uInt8Array[i] = raw.charCodeAt(i);
+                }
+                return new Blob([uInt8Array], { type: contentType });
+            }
+            btn2.addEventListener('click', function() {
+                var base64 = document.querySelector("img").src;
+                var blob = base64ToBlob(base64);
+                var oA = document.createElement("a");
+                oA.href = URL.createObjectURL(blob);
+                oA.download = new Date().valueOf() + ".png";
+                oA.click();
+            }, false);
+
+            btn1.addEventListener(
+                "click",
+                function() {
+                    var basefile = file1.files[0];
+                    var waterf = file2.files[0];
+                    var canvas = document.createElement("canvas");
+                    var number = Number(document.querySelector("#number").value) || 50;
+                    fileToBase64(basefile, function(res) {
+                        var img = document.createElement("img");
+                        img.src = res;
+                        img.onload = () => {
+                            var height = img.height,
+                                width = img.width;
+                            canvas.width = width;
+                            canvas.height = height;
+                            var ctx = canvas && canvas.getContext && canvas.getContext("2d");
+                            ctx.drawImage(img, 0, 0);
+                            fileToBase64(waterf, function(res2) {
+                                var img = document.createElement("img");
+                                img.src = res2;
+                                img.onload = function() {
+                                    var wid = img.width,
+                                        hei = img.height;
+                                    var nowW = 0,
+                                        nowH = 0;
+                                    while (nowW < width + nowW * 0.5) {
+                                        while (nowH < height) {
+                                            ctx.drawImage(img, nowW, nowH);
+                                            nowH = nowH + hei + number;
+                                        }
+                                        nowH = 0;
+                                        nowW = nowW + wid + number;
+                                    }
+                                    document.querySelector("img").src = canvas.toDataURL("image/jpg");
+                                };
+                            });
+                        };
+                    });
+                },
+                false
+            );
+        </script>
+    </body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Document</title>
+    </head>
+    <body>
+        <button id="btn1">去合成</button>
+        <!-- <h1>文字生成图片</h1> -->
+        <input id="text" type="text" placeholder="请输入文字" />
+        <input id="width" type="number" placeholder="图片宽" />
+        <input id="height" type="number" placeholder="图片高" />
+        <button id="btn2">生成</button>
+        <button id="btn3">导出</button>
+        <img src="" id="image" alt="" />
+        <script>
+            function mergeOptions(options) {
+                return Object.assign(
+                    {
+                        width: 200,
+                        height: 100,
+                        color: "#ebebeb",
+                        alpha: 0.8,
+                        font: "50px Arial"
+                    },
+                    options
+                );
+            }
+            function alimask (text, options) {
+                var canvas, ctx;
+                options = mergeOptions(options);
+                var width = options.width,
+                    height = options.height;
+                if (!canvas || !ctx) {
+                    if (typeof document !== "undefined") {
+                        canvas = document.createElement("canvas");
+                        canvas.width = width;
+                        canvas.height = height;
+                    } else {
+                        var Canvas = module.require("canvas");
+                        canvas = new Canvas();
+                    }
+                    ctx = canvas && canvas.getContext && canvas.getContext("2d");
+                    if (!canvas || !ctx) return "";
+                }
+
+                ctx.clearRect(0, 0, width, height);
+                ctx.globalAlpha = 0;
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.globalAlpha = options.alpha;
+                ctx.fillStyle = options.color;
+                ctx.font = options.font;
+
+                ctx.textAlign = "left";
+                ctx.textBaseline = "bottom";
+
+                ctx.translate(width * 0, height * 1);
+                ctx.rotate(-Math.PI / 12);
+                ctx.fillText(text, 0, 0);
+
+                return canvas.toDataURL();
+            };
+
+            function base64ToBlob(code) {
+                var parts = code.split(";base64,");
+                var contentType = parts[0].split(":")[1];
+                var raw = window.atob(parts[1]);
+                var rawLength = raw.length;
+
+                var uInt8Array = new Uint8Array(rawLength);
+
+                for (var i = 0; i < rawLength; ++i) {
+                    uInt8Array[i] = raw.charCodeAt(i);
+                }
+                return new Blob([uInt8Array], { type: contentType });
+            }
+
+            function getOpt() {
+                var wid = width.value;
+                var hei = height.value;
+                var opt = {};
+                if (wid) opt.width = wid;
+                if (hei) opt.height = hei;
+
+                return opt;
+            }
+
+            btn2.addEventListener(
+                "click",
+                function() {
+                    var val = text.value;
+                    if (!val) return;
+                    image.src = "";
+                    image.src = alimask(val, getOpt());
+                    image.style.border = "1px solid #000";
+                },
+                false
+            );
+
+            btn3.addEventListener(
+                "click",
+                function() {
+                    var val = text.value;
+                    if (!val) return;
+                    var blob = base64ToBlob(alimask(val, getOpt()));
+                    var oA = document.createElement("a");
+                    oA.href = URL.createObjectURL(blob);
+                    oA.download = new Date().valueOf() + ".png";
+                    oA.click();
+                },
+                false
+            );
+            btn1.addEventListener(
+                "click",
+                function() {
+                    window.location.href = "/compose.html";
+                },
+                false
+            );
+        </script>
+    </body>
+</html>
