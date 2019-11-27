@@ -12,6 +12,9 @@
         <input id="text" type="text" placeholder="请输入文字" />
         <input id="width" type="number" placeholder="图片宽" />
         <input id="height" type="number" placeholder="图片高" />
+        <input id="fontsize" type="number" placeholder="默认字号56">
+        <input id="color" type="text" placeholder="颜色,默认:#ebebeb" />
+        <input id="opacity" type="number" placeholder="透明度取值范围：0~1;默认 0.8">
         <button id="btn2">生成</button>
         <button id="btn3">导出</button>
         <img src="" id="image" alt="" />
@@ -81,10 +84,15 @@
             function getOpt() {
                 var wid = width.value;
                 var hei = height.value;
+                var font = fontsize.value;
+                var opa = opacity.value;
+                var col = color.value;
                 var opt = {};
                 if (wid) opt.width = wid;
                 if (hei) opt.height = hei;
-
+                if (font) opt.font = font + ' Arial'
+                if (opa) opt.alpha = opa 
+                if (col) opt.color = col 
                 return opt;
             }
 

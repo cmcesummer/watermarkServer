@@ -11,6 +11,7 @@
         底图： <input type="file" id="file1" /> <br />
         水印图： <input type="file" id="file2" /> <br />
         水印间距： <input type="number" id="number" /> <br />
+        透明度: <input id="opacity" type="number" placeholder="取值范围：0~1;默认 0.8">
         <button id="btn1">合成</button>
         <button id="btn2">导出</button>
         <img src="" alt="" />
@@ -51,6 +52,7 @@
                     var waterf = file2.files[0];
                     var canvas = document.createElement("canvas");
                     var number = Number(document.querySelector("#number").value) || 50;
+                    var opacit = document.querySelector('#opacity').value || 0.6
                     fileToBase64(basefile, function(res) {
                         var img = document.createElement("img");
                         img.src = res;
@@ -61,6 +63,7 @@
                             canvas.height = height;
                             var ctx = canvas && canvas.getContext && canvas.getContext("2d");
                             ctx.drawImage(img, 0, 0);
+                            ctx.globalAlpha = opacit ;
                             fileToBase64(waterf, function(res2) {
                                 var img = document.createElement("img");
                                 img.src = res2;
@@ -72,6 +75,7 @@
                                     while (nowW < width + nowW * 0.5) {
                                         while (nowH < height) {
                                             ctx.drawImage(img, nowW, nowH);
+                                            
                                             nowH = nowH + hei + number;
                                         }
                                         nowH = 0;
