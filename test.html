@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #box {
+            position: relative;
+            height: 600px;
+            overflow: auto;
+        }
+        .item {
+            position: absolute;
+            left: 0;
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="box"></div>
+    <script>
+        (function() {
+            const box = document.getElementById('box');
+            const dataSource = [];
+            const itemHeight = 50;
+            const boxHeight = box.clientHeight;
+            const showItem = Math.ceil(boxHeight / itemHeight);
+            const cacheNumber = 10;
+            for (let i = 0, length = 1000; i < length; i++) {
+                dataSource.push(i)
+            }
+            function renderData(data, start, itemHeight) {
+                let html = '';
+                for (let item of data) {
+                    html += `<div class="item" style=" top:${start}px">${item}</div>`;
+                    start += itemHeight;
+                }
+                return html
+            }
+
+            const totalHeight = dataSource.length * itemHeight;
+            const bottom = `<div style="padding-top: ${totalHeight}px"></div>`;
+            
+            box.innerHTML = renderData(dataSource, 0, itemHeight) + bottom;
+
+            function renderShowHtml() {
+                const item = box.scrollTop / itemHeight ;
+                let end = item + showItem + cacheNumber;
+                end = end > dataSource.length ? dataSource.length : end;
+                let start = item - cacheNumber;
+                start = start >= 0 ? start : 0;
+                const renderArray = dataSource.slice(start, end);
+                const itemPosition = item * itemHeight;
+                box.innerHTML = renderData(renderArray, itemPosition, itemHeight) + bottom;
+            }
+
+            renderShowHtml();
+
+            box.addEventListener('scroll', function() {
+                renderShowHtml();
+            }, false)
+
+
+        })();
+    </script>
+</body>
+</html>
