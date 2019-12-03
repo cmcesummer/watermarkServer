@@ -15,6 +15,8 @@
             position: absolute;
             left: 0;
             right: 0;
+            height: 50px;
+            border-bottom: 1px solid;
         }
     </style>
 </head>
@@ -28,9 +30,18 @@
             const boxHeight = box.clientHeight;
             const showItem = Math.ceil(boxHeight / itemHeight);
             const cacheNumber = 10;
-            for (let i = 0, length = 1000; i < length; i++) {
+            let i = 0
+            for (let length = 100; i < length; i++) {
                 dataSource.push(i)
             }
+
+            function moreData(length = 20) {
+                for (; i < length; i++) {
+                    dataSource.push(i)
+                }
+                document.getElementById('paddingTop').innerHTML = '';
+            }
+
             function renderData(data, start, itemHeight) {
                 let html = '';
                 for (let item of data) {
@@ -41,26 +52,52 @@
             }
 
             const totalHeight = dataSource.length * itemHeight;
-            const bottom = `<div style="padding-top: ${totalHeight}px"></div>`;
+            const bottom = `<div id="paddingTop" style="padding-top: ${totalHeight}px"></div>`;
             
             box.innerHTML = renderData(dataSource, 0, itemHeight) + bottom;
 
+            // function renderShowHtml() {
+            //     const item = Math.ceil(box.scrollTop / itemHeight) ;
+            //     let end = item + showItem + cacheNumber;
+            //     end = end > dataSource.length ? dataSource.length : end;
+            //     let start = item - cacheNumber;
+            //     start = start >= 0 ? start : 0;
+            //     const renderArray = dataSource.slice(start, end);
+            //     const itemPosition = box.scrollTop - (item - start) * itemHeight;
+            //     const truePos = item * itemHeight;
+            //     let finPos = itemPosition - (box.scrollTop + itemHeight - truePos);
+            //     finPos = finPos < 0 ? 0 : finPos;
+            //     console.log(finPos);
+            //     box.innerHTML = renderData(renderArray, finPos, itemHeight) + bottom;
+            // }
+            const styleCatch = {};
             function renderShowHtml() {
-                const item = box.scrollTop / itemHeight ;
+                const item = Math.ceil(box.scrollTop / itemHeight) ;
+                console.log(box.scrollTop + box.clientHeight, )
+                let start = item - cacheNumber;
                 let end = item + showItem + cacheNumber;
                 end = end > dataSource.length ? dataSource.length : end;
-                let start = item - cacheNumber;
                 start = start >= 0 ? start : 0;
                 const renderArray = dataSource.slice(start, end);
-                const itemPosition = item * itemHeight;
+                let itemPosition = 0;
+                if (styleCatch[start]) {
+                    itemPosition = styleCatch[start]
+                } else {
+                    itemPosition = start * itemHeight;
+                }
                 box.innerHTML = renderData(renderArray, itemPosition, itemHeight) + bottom;
+                if (box.scrollTop + box.clientHeight + 10 >= document.getElementById('paddingTop').clientHeight) {
+                    document.getElementById('paddingTop').innerHTML = 'loading';
+                }
             }
 
             renderShowHtml();
 
             box.addEventListener('scroll', function() {
                 renderShowHtml();
-            }, false)
+            }, {
+                passive: true
+            })
 
 
         })();
